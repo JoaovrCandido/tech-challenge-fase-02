@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
   ECR_REPOSITORY: host-app
   ECS_SERVICE: host-app-service
   ECS_CLUSTER: micro-frontend-cluster
