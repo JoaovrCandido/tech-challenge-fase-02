@@ -16,7 +16,7 @@ env:
   AWS_REGION: us-east-2
   ECR_REPOSITORY: host-app
   ECS_SERVICE: host-app-service
-  ECS_CLUSTER: micro-frontend-cluster
+  ECS_CLUSTER: fiap-microfrontend
   ECS_TASK_DEFINITION: host-app-task
 
 jobs:
