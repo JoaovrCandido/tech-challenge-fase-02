@@ -55,15 +55,15 @@ jobs:
         image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}-${{ github.run_number }}
 
     - name: Create CloudWatch log group (exact check)
-    run: |
-      aws logs describe-log-groups \
-        --log-group-name-prefix /ecs/host-app \
-        --region us-east-2 \
-        --query "logGroups[?logGroupName=='/ecs/host-app']" \
-        --output text | grep /ecs/host-app || \
-      aws logs create-log-group \
-        --log-group-name /ecs/host-app \
-        --region us-east-2
+      run: |
+        aws logs describe-log-groups \
+          --log-group-name-prefix /ecs/host-app \
+          --region us-east-2 \
+          --query "logGroups[?logGroupName=='/ecs/host-app']" \
+          --output text | grep /ecs/host-app || \
+        aws logs create-log-group \
+          --log-group-name /ecs/host-app \
+          --region us-east-2
 
 
     - name: Deploy to Amazon ECS
