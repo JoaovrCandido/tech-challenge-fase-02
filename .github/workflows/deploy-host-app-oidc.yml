@@ -15,7 +15,7 @@ env:
   ECR_REPOSITORY: host-app
   ECS_SERVICE: host-app-service
   ECS_CLUSTER: fiap-microfrontend
-  ALB_NAME: fiap-alb
+  REMOTE_ECS_SERVICE: remote-app-service
 
 jobs:
   deploy:
@@ -32,13 +32,18 @@ jobs:
     - uses: aws-actions/amazon-ecr-login@v2
       id: login-ecr
 
-    - name: Discover ALB DNS via ECS Service
+    - name: Discover Remote App ALB DNS
       run: |
         TG_ARN=$(aws ecs describe-services \
           --cluster $ECS_CLUSTER \
-          --services $ECS_SERVICE \
+          --services $REMOTE_ECS_SERVICE \
           --query "services[0].loadBalancers[0].targetGroupArn" \
           --output text)
+
+        if [ "$TG_ARN" = "None" ] || [ -z "$TG_ARN" ]; then
+          echo "Remote service does not have a Load Balancer"
+          exit 1
+        fi
 
         LB_ARN=$(aws elbv2 describe-target-groups \
           --target-group-arns $TG_ARN \
@@ -50,7 +55,8 @@ jobs:
           --query "LoadBalancers[0].DNSName" \
           --output text)
 
-        echo "REMOTE_APP_URL=http://$DNS/remote" >> $GITHUB_ENV
+        echo "REMOTE_APP_URL=http://$DNS" >> $GITHUB_ENV
+
 
 
     - name: Build & Push
@@ -81,3 +87,11 @@ jobs:
         service: host-app-service
         cluster: fiap-microfrontend
         wait-for-service-stability: true
+
+    - name: Force desired count
+      run: |
+        aws ecs update-service \
+          --cluster fiap-microfrontend \
+          --service host-app-service \
+          --desired-count 1
+
