@@ -54,6 +54,17 @@ jobs:
         container-name: remote-app
         image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}-${{ github.run_number }}
 
+    - name: Create CloudWatch log group (if not exists)
+      run: |
+        aws logs describe-log-groups \
+          --log-group-name-prefix /ecs/remote-app \
+          --region us-east-2 \
+        | grep /ecs/remote-app || \
+        aws logs create-log-group \
+          --log-group-name /ecs/remote-app \
+          --region us-east-2
+
+
     - name: Deploy to Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
