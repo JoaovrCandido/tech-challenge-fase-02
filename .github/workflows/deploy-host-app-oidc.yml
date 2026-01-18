@@ -32,13 +32,26 @@ jobs:
     - uses: aws-actions/amazon-ecr-login@v2
       id: login-ecr
 
-    - name: Get ALB DNS
+    - name: Discover ALB DNS via ECS Service
       run: |
+        TG_ARN=$(aws ecs describe-services \
+          --cluster $ECS_CLUSTER \
+          --services $ECS_SERVICE \
+          --query "services[0].loadBalancers[0].targetGroupArn" \
+          --output text)
+
+        LB_ARN=$(aws elbv2 describe-target-groups \
+          --target-group-arns $TG_ARN \
+          --query "TargetGroups[0].LoadBalancerArns[0]" \
+          --output text)
+
         DNS=$(aws elbv2 describe-load-balancers \
-          --names $ALB_NAME \
+          --load-balancer-arns $LB_ARN \
           --query "LoadBalancers[0].DNSName" \
           --output text)
+
         echo "REMOTE_APP_URL=http://$DNS/remote" >> $GITHUB_ENV
+
 
     - name: Build & Push
       working-directory: ./host-app
