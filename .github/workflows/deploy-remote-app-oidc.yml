@@ -64,7 +64,6 @@ jobs:
           --log-group-name /ecs/remote-app \
           --region us-east-2
 
-
     - name: Deploy to Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
