@@ -31,7 +31,7 @@ export default function Header({
             src="/alterarfonte.png"
             width={35}
             height={35}
-            alt="Imagem alterar tamanho da fonte"
+            alt=""
           />
         </button>
 
@@ -45,7 +45,7 @@ export default function Header({
             src="/modoclaroescuro.png"
             width={40}
             height={40}
-            alt="Imagem alterar tamanho da fonte"
+            alt=""
           />
         </button>
       </div>

@@ -40,6 +40,7 @@ export default function NewTransaction({
       
       <p>Valor</p>
       <input
+        aria-label="Valor da transação" 
         type="text"
         placeholder="10,00"
         value={value}
@@ -48,6 +49,7 @@ export default function NewTransaction({
       />
 
       <input
+        aria-label="Descrição da transação"
         type="text"
         placeholder="Descrição (opcional)"
         value={description}

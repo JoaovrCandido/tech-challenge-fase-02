@@ -24,11 +24,13 @@ export default function Menu() {
   const closeMenu = () => setOpen(false);
 
   const renderLinks = () => (
-    <div
-      className={`${style.mobileMenuWrapper} ${open ? style.open : ""}`}
-    >
+    <div className={`${style.mobileMenuWrapper} ${open ? style.open : ""}`}>
       {isMobile && (
-        <button className={style.btnClose} onClick={closeMenu}>
+        <button
+          className={style.btnClose}
+          onClick={closeMenu}
+          aria-label="Fechar menu"
+        >
           ✖
         </button>
       )}
@@ -42,7 +44,9 @@ export default function Menu() {
               className={`${style.menuItem} ${isActive ? style.activeItem : ""}`}
               onClick={closeMenu}
             >
-              <Link href={item.path}>{item.label}</Link>
+              <Link href={item.path} aria-current={isActive ? "page" : undefined} >
+                {item.label}
+              </Link>
             </li>
           );
         })}
@@ -50,9 +54,8 @@ export default function Menu() {
     </div>
   );
 
-
   return (
-    <div className={style.Menu}>
+    <nav className={style.Menu} aria-label="Menu principal">
       {isMobile && open && (
         <div className={style.overlay} onClick={closeMenu}></div>
       )}
@@ -64,8 +67,9 @@ export default function Menu() {
           <button
             className={style.btnToggle}
             onClick={() => setOpen((prev) => !prev)}
-            aria-label="Abrir menu"
+            aria-label={open ? "Fechar menu" : "Abrir menu"}
             aria-expanded={open}
+            aria-controls="menu-mobile"
           >
             ☰
           </button>
@@ -73,6 +77,6 @@ export default function Menu() {
       ) : (
         renderLinks()
       )}
-    </div>
+    </nav>
   );
 }
