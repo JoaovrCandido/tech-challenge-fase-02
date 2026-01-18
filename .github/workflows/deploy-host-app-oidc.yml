@@ -1,12 +1,9 @@
-# filepath: .github/workflows/deploy-host-app-oidc.yml
-name: Deploy Host App (OIDC)
+name: Deploy Host App
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'host-app/**'
-  workflow_dispatch:
+    paths: [ 'host-app/**' ]
 
 permissions:
   id-token: write
@@ -17,59 +14,56 @@ env:
   ECR_REPOSITORY: host-app
   ECS_SERVICE: host-app-service
   ECS_CLUSTER: fiap-microfrontend
-  ECS_TASK_DEFINITION: host-app-task
+  ALB_NAME: fiap-alb
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
 
-    - name: Configure AWS credentials using OIDC
-      uses: aws-actions/configure-aws-credentials@v4
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam::803872155909:role/GitHubActionsECRPushRole
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR
+    - uses: aws-actions/amazon-ecr-login@v2
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build and push Docker image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
+    - name: Get ALB DNS
+      run: |
+        DNS=$(aws elbv2 describe-load-balancers \
+          --names $ALB_NAME \
+          --query "LoadBalancers[0].DNSName" \
+          --output text)
+        echo "REMOTE_APP_URL=http://$DNS/remote" >> $GITHUB_ENV
+
+    - name: Build & Push
       working-directory: ./host-app
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        IMAGE=${{ steps.login-ecr.outputs.registry }}/host-app:${{ github.sha }}
+        docker build -t $IMAGE .
+        docker push $IMAGE
 
-    - name: Render new task definition
-      id: task-def
+    - name: Create log group
+      run: |
+        aws logs create-log-group \
+          --log-group-name /ecs/host-app \
+          --region us-east-2 || true
+
+    - name: Render task definition
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: host-app/task-definition.json
         container-name: host-app
-        image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}-${{ github.run_number }}
+        image: ${{ steps.login-ecr.outputs.registry }}/host-app:${{ github.sha }}
+        environment-variables: |
+          REMOTE_APP_URL=${{ env.REMOTE_APP_URL }}
 
-    - name: Create CloudWatch log group (exact check)
-      run: |
-        aws logs describe-log-groups \
-          --log-group-name-prefix /ecs/host-app \
-          --region us-east-2 \
-          --query "logGroups[?logGroupName=='/ecs/host-app']" \
-          --output text | grep /ecs/host-app || \
-        aws logs create-log-group \
-          --log-group-name /ecs/host-app \
-          --region us-east-2
-
-
-    - name: Deploy to Amazon ECS
+    - name: Deploy ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
+        service: host-app-service
+        cluster: fiap-microfrontend
         wait-for-service-stability: true

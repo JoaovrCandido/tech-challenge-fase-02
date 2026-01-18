@@ -4,21 +4,21 @@ import { NextFederationPlugin } from "@module-federation/nextjs-mf";
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: false,
-   output: 'standalone',
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
-   webpack: (config, { isServer }) => {
+  webpack: (config, { isServer }) => {
     if (!isServer) {
       config.plugins.push(
         new NextFederationPlugin({
           name: 'hostApp',
           filename: 'static/runtime/remoteEntry.js',
           remotes: {
-            remoteApp: 'remoteApp@http://localhost:3001/_next/static/chunks/remoteEntry.js'
+            remoteApp: `remoteApp@${process.env.REMOTE_APP_URL}/_next/static/chunks/remoteEntry.js`
           },
           // exposes: {
           //   "./accessibility": "./src/contexts/accessibility.ts",

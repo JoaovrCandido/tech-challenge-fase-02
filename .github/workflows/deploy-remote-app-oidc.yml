@@ -1,15 +1,12 @@
-# filepath: .github/workflows/deploy-remote-app-oidc.yml
-name: Deploy Remote App (OIDC)
+name: Deploy Remote App
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'remote-app/**'
-  workflow_dispatch:
+    paths: [ 'remote-app/**' ]
 
 permissions:
-  id-token: write   # Required for OIDC
+  id-token: write
   contents: read
 
 env:
@@ -17,63 +14,45 @@ env:
   ECR_REPOSITORY: remote-app
   ECS_SERVICE: remote-app-service
   ECS_CLUSTER: fiap-microfrontend
-  ECS_TASK_DEFINITION: remote-app-task
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
 
-    - name: Configure AWS credentials using OIDC
-      uses: aws-actions/configure-aws-credentials@v4
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam::803872155909:role/GitHubActionsECRPushRole
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR
+    - uses: aws-actions/amazon-ecr-login@v2
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build and push Docker image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
+    - name: Build & Push
       working-directory: ./remote-app
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        IMAGE=${{ steps.login-ecr.outputs.registry }}/remote-app:${{ github.sha }}
+        docker build -t $IMAGE .
+        docker push $IMAGE
 
-    - name: Render new task definition
-      id: task-def
+    - name: Create log group
+      run: |
+        aws logs create-log-group \
+          --log-group-name /ecs/remote-app \
+          --region us-east-2 || true
+
+    - name: Render task definition
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: remote-app/task-definition.json
         container-name: remote-app
-        image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}-${{ github.run_number }}
+        image: ${{ steps.login-ecr.outputs.registry }}/remote-app:${{ github.sha }}
 
-    - name: Create CloudWatch log group (if not exists)
-      run: |
-        aws logs describe-log-groups \
-          --log-group-name-prefix /ecs/remote-app \
-          --region us-east-2 \
-        | grep /ecs/remote-app || \
-        aws logs create-log-group \
-          --log-group-name /ecs/remote-app \
-          --region us-east-2
-
-    - name: Deploy to Amazon ECS
+    - name: Deploy ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ env.ECS_SERVICE }}
-        cluster: ${{ env.ECS_CLUSTER }}
+        service: remote-app-service
+        cluster: fiap-microfrontend
         wait-for-service-stability: true
-
-    - name: Deployment summary
-      run: |
-        echo "✅ Deployment successful!"
-        echo "📦 Image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
-        echo "🚀 Service: ${{ env.ECS_SERVICE }}"

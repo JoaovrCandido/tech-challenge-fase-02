@@ -18,6 +18,12 @@
                     "protocol": "tcp"
                 }
             ],
+            "environment": [
+                {
+                    "name": "REMOTE_APP_URL",
+                    "value": "REPLACE_ME"
+                }
+            ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
