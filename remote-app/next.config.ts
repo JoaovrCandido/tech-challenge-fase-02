@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   basePath: '',
   assetPrefix: '',
   webpack: (config, { isServer }) => {
+    config.output.publicPath = 'auto';
+
     if (!isServer) {
       config.plugins.push(
         new NextFederationPlugin({

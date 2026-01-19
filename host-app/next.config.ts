@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   webpack: (config, { isServer }) => {
+    config.output.publicPath = 'auto';
+
     if (!isServer) {
       config.plugins.push(
         new NextFederationPlugin({
