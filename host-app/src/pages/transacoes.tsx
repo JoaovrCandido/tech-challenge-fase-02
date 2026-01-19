@@ -1,5 +1,7 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
+import { GetStaticProps } from "next";
 
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -8,18 +10,32 @@ import { displayDate } from "@/utils/formatDate";
 
 import { TransactionAppProps } from "@/types";
 
+import Loading from "@/components/Loading/Loading";
+
 import style from "@/styles/transacoes.module.css";
 
-const Menu = dynamic(() => import("remoteApp/Menu"), { ssr: false });
+const LoadingFallback = () => <Loading />;
+
+const Menu = dynamic(() => import("remoteApp/Menu"), { ssr: false,  loading: () => <Loading /> });
 
 const TransactionApp = dynamic<TransactionAppProps>(
   () => import("remoteApp/TransactionApp"),
-  { ssr: false }
+  { ssr: false, loading: () => <LoadingFallback />, }
 );
 
 export default function Transacoes() {
   const { transactions, setTransactions } = useTransactions();
   const isMobile = useIsMobile();
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null; 
+  }
 
   return (
     <>
@@ -59,3 +75,9 @@ export default function Transacoes() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  return {
+    props: {},
+  };
+};
