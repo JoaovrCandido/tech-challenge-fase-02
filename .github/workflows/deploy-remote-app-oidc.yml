@@ -45,6 +45,7 @@ jobs:
           --region us-east-2 || true
 
     - name: Render task definition
+      id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: remote-app/task-definition.json
@@ -54,6 +55,7 @@ jobs:
     - name: Deploy ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        service: remote-app-service
-        cluster: fiap-microfrontend
+        task-definition: ${{ steps.task-defs.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
