@@ -32,19 +32,25 @@ jobs:
     - uses: aws-actions/amazon-ecr-login@v2
       id: login-ecr
 
-    - name: Discover Remote App Public IP
+    - name: Discover Remote App Public IP (newest RUNNING task)
       run: |
-        TASK_ARN=$(aws ecs list-tasks \
+        TASK_ARNS=$(aws ecs list-tasks \
           --cluster $ECS_CLUSTER \
           --service-name $REMOTE_ECS_SERVICE \
           --desired-status RUNNING \
-          --query "taskArns[0]" \
+          --query "taskArns[]" \
           --output text)
 
-        if [ "$TASK_ARN" = "None" ] || [ -z "$TASK_ARN" ]; then
-          echo "No RUNNING task found for $REMOTE_ECS_SERVICE"
+        if [ -z "$TASK_ARNS" ]; then
+          echo "No RUNNING tasks found for $REMOTE_ECS_SERVICE"
           exit 1
         fi
+
+        TASK_ARN=$(aws ecs describe-tasks \
+          --cluster $ECS_CLUSTER \
+          --tasks $TASK_ARNS \
+          --query "sort_by(tasks,&startedAt)[-1].taskArn" \
+          --output text)
 
         ENI_ID=$(aws ecs describe-tasks \
           --cluster $ECS_CLUSTER \
@@ -62,14 +68,18 @@ jobs:
           exit 1
         fi
 
-        echo "REMOTE_APP_URL=http://$PUBLIC_IP:3000" >> $GITHUB_ENV
-        echo "REMOTE_APP_URL=http://$PUBLIC_IP:3000"
+        echo "NEXT_PUBLIC_REMOTE_APP_URL=http://$PUBLIC_IP:3000" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_REMOTE_APP_URL=http://$PUBLIC_IP:3000"
 
+    - name: Assert remoteEntry is reachable
+      run: |
+        echo "Using NEXT_PUBLIC_REMOTE_APP_URL=${{ env.NEXT_PUBLIC_REMOTE_APP_URL }}"
+        curl -I "${{ env.NEXT_PUBLIC_REMOTE_APP_URL }}/_next/static/chunks/remoteEntry.js" | head -n 1
 
     - name: Build & Push
       working-directory: ./host-app
       run: |
-        IMAGE=${{ steps.login-ecr.outputs.registry }}/host-app:${{ github.sha }}
+        IMAGE=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
         docker build -t $IMAGE .
         docker push $IMAGE
 
@@ -77,7 +87,7 @@ jobs:
       run: |
         aws logs create-log-group \
           --log-group-name /ecs/host-app \
-          --region us-east-2 || true
+          --region $AWS_REGION || true
 
     - name: Render task definition
       id: task-def
@@ -85,23 +95,21 @@ jobs:
       with:
         task-definition: host-app/task-definition.json
         container-name: host-app
-        image: ${{ steps.login-ecr.outputs.registry }}/host-app:${{ github.sha }}
+        image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
         environment-variables: |
-          REMOTE_APP_URL=${{ env.REMOTE_APP_URL }}
+          NEXT_PUBLIC_REMOTE_APP_URL=${{ env.NEXT_PUBLIC_REMOTE_APP_URL }}
 
     - name: Deploy ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: host-app-service
-        cluster: fiap-microfrontend
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
-
 
     - name: Force desired count
       run: |
         aws ecs update-service \
-          --cluster fiap-microfrontend \
-          --service host-app-service \
+          --cluster $ECS_CLUSTER \
+          --service $ECS_SERVICE \
           --desired-count 1
-
