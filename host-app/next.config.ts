@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
           name: 'hostApp',
           filename: 'static/runtime/remoteEntry.js',
           remotes: {
-            remoteApp: `remoteApp@${process.env.REMOTE_APP_URL}/_next/static/chunks/remoteEntry.js`
+            remoteApp: `remoteApp@${process.env.NEXT_PUBLIC_REMOTE_APP_URL}/_next/static/chunks/remoteEntry.js`
           },
           // exposes: {
           //   "./accessibility": "./src/contexts/accessibility.ts",

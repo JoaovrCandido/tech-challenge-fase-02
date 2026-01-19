@@ -80,8 +80,11 @@ jobs:
       working-directory: ./host-app
       run: |
         IMAGE=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-        docker build -t $IMAGE .
+        docker build \
+          --build-arg NEXT_PUBLIC_REMOTE_APP_URL=${{ env.NEXT_PUBLIC_REMOTE_APP_URL }} \
+          -t $IMAGE .
         docker push $IMAGE
+
 
     - name: Create log group
       run: |
