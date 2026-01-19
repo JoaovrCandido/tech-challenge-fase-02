@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: false,
   output: 'standalone',
+  basePath: '',
+  assetPrefix: '',
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.plugins.push(
@@ -37,7 +39,7 @@ const nextConfig: NextConfig = {
           extraOptions: {},
         })
       );
-    } 
+    }
     // else {
     //   config.resolve.alias = {
     //     ...config.resolve.alias,
