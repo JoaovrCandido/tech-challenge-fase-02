@@ -132,7 +132,7 @@ function HomeApp({
         value: Number(value),
         description,
         date: new Date().toISOString().slice(0, 10),
-        // @ts-ignore 
+        // @ts-expect-error - o tipo de Transaction não inclui "attachment" (anexo em base64) 
         attachment: fileBase64,
       });
 
