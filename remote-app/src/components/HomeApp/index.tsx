@@ -132,7 +132,7 @@ function HomeApp({
         value: Number(value),
         description,
         date: new Date().toISOString().slice(0, 10),
-        // @ts-ignore - Certifique-se de adicionar 'attachment?: string' no type Transaction
+        // @ts-ignore 
         attachment: fileBase64,
       });
 

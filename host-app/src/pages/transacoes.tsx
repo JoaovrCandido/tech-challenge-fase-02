@@ -62,15 +62,12 @@ export default function Transacoes() {
               transactions={transactions}
               dateString={displayDate}
               onCreate={(data) => {
-                // Cria o objeto com ID e manda pro Redux
                 dispatch(addTransaction({ id: Date.now(), ...data }));
               }}
               onUpdate={(updated) => {
-                // Manda a atualização pro Redux
                 dispatch(updateTransaction(updated));
               }}
               onDelete={(id) => {
-                // Manda deletar no Redux
                 dispatch(deleteTransaction(id));
               }}
             />

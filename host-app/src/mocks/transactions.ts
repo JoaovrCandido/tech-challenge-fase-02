@@ -1,6 +1,5 @@
 import { Transaction } from "@/types";
 
-// mocks/transactions.ts
 export const transactionsMock: Transaction[] = [
   {
     id: 1,

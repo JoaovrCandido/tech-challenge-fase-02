@@ -1,7 +1,5 @@
 "use client";
 
-// import { useAccessibility } from "hostApp/accessibility";
-
 import Header from "./components/Header/Header";
 
 interface Props {
@@ -10,7 +8,6 @@ interface Props {
 }
 
 function HeaderContainer({ onToggleDarkMode, onToggleFontSize }: Props) {
-  // const { toggleDarkMode, toggleChangeFontSize } = useAccessibility();
 
   return (
     <Header

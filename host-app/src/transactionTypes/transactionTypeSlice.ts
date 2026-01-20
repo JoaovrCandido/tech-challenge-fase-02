@@ -5,15 +5,13 @@ interface TransactionTypesState {
 }
 
 const initialState: TransactionTypesState = {
-  types: ["deposito", "transferencia"], // Adicione mais tipos aqui se precisar
+  types: ["deposito", "transferencia"],
 };
 
 const transactionTypeSlice = createSlice({
   name: "transactionTypes",
   initialState,
-  reducers: {
-    // Se precisar adicionar tipos dinamicamente no futuro, crie as actions aqui
-  },
+  reducers: {},
 });
 
 export default transactionTypeSlice.reducer;

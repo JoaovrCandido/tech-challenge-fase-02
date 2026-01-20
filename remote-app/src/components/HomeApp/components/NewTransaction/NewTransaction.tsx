@@ -1,8 +1,6 @@
 "use client";
 
 import { TransactionType, NewTransactionProps } from "@/types";
-// import { useSelector } from "react-redux";
-
 
 import style from "./NewTransaction.module.css";
 
@@ -54,10 +52,7 @@ export default function NewTransaction({
         disabled={disabled}
       >
     
-       {/* // <option value="deposito">Depósito</option> */}
-       {/* // <option value="transferencia">Transferência</option> */}
        <option value="">Selecione o tipo de transação</option>
-        {/* {transactionTypes.map(t => ( <option value={t} key={t}>{t}</option> */}
         {transactionTypeOptions?.map((t: string) => (
             <option key={t} value={t}>{t}</option>
           ))}
