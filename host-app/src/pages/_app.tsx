@@ -1,8 +1,11 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import dynamic from 'next/dynamic';
+import store from '../store';
+
 
 import { AccessibilityProvider, useAccessibility } from "@/contexts/AccessibilityProvider";
+import { Provider } from "react-redux";
 
 interface HeaderContainerProps {
   onToggleDarkMode: () => void;
@@ -30,9 +33,10 @@ function HeaderWrapper() {
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <AccessibilityProvider>
-      <HeaderWrapper />
-
-      <Component {...pageProps} />
+      <Provider store={store}>
+        <HeaderWrapper />
+        <Component {...pageProps} />
+      </Provider>
     </AccessibilityProvider>
   );
 }

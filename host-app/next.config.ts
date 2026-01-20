@@ -37,6 +37,8 @@ const nextConfig: NextConfig = {
               // eager: true,
               requiredVersion: false
             },
+            "react-redux": { singleton: true },
+           '@reduxjs/toolkit': { singleton: true },
           },
           extraOptions: {},
         })
