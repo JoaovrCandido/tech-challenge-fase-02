@@ -5,7 +5,11 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: false,
   output: 'standalone',
+  basePath: '',
+  assetPrefix: '',
   webpack: (config, { isServer }) => {
+    config.output.publicPath = 'auto';
+
     if (!isServer) {
       config.plugins.push(
         new NextFederationPlugin({
@@ -37,7 +41,7 @@ const nextConfig: NextConfig = {
           extraOptions: {},
         })
       );
-    } 
+    }
     // else {
     //   config.resolve.alias = {
     //     ...config.resolve.alias,

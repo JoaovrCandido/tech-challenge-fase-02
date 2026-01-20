@@ -20,7 +20,7 @@
             ],
             "environment": [
                 {
-                    "name": "REMOTE_APP_URL",
+                    "name": "NEXT_PUBLIC_REMOTE_APP_URL",
                     "value": "REPLACE_ME"
                 }
             ],

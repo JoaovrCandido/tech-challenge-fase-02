@@ -12,13 +12,15 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   webpack: (config, { isServer }) => {
+    config.output.publicPath = 'auto';
+
     if (!isServer) {
       config.plugins.push(
         new NextFederationPlugin({
           name: 'hostApp',
           filename: 'static/runtime/remoteEntry.js',
           remotes: {
-            remoteApp: `remoteApp@${process.env.REMOTE_APP_URL}/_next/static/chunks/remoteEntry.js`
+            remoteApp: `remoteApp@${process.env.NEXT_PUBLIC_REMOTE_APP_URL}/_next/static/chunks/remoteEntry.js`
           },
           // exposes: {
           //   "./accessibility": "./src/contexts/accessibility.ts",
