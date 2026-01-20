@@ -23,6 +23,7 @@ function HomeApp({
   transactions,
   balance,
   dateString,
+  transactionTypeOptions,
   onCreate,
   onUpdate,
   onDelete,
@@ -30,6 +31,7 @@ function HomeApp({
   transactions: Transaction[];
   balance: number;
   dateString: string;
+  transactionTypeOptions: string[];
   onCreate: (t: Omit<Transaction, "id">) => void;
   onUpdate: (t: Transaction) => void;
   onDelete: (id: number) => void;
@@ -192,6 +194,7 @@ function HomeApp({
         <NewTransaction
           key={formKey}
           title="Nova transação"
+          transactionTypeOptions={transactionTypeOptions}
           type={type}
           value={value}
           description={description}

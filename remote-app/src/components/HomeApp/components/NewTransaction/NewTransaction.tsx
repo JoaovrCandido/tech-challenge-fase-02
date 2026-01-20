@@ -1,8 +1,7 @@
 "use client";
 
-import { TransactionType } from "@/types";
-import { NewTransactionProps } from "@/types";
-import { useSelector } from "react-redux";
+import { TransactionType, NewTransactionProps } from "@/types";
+// import { useSelector } from "react-redux";
 
 
 import style from "./NewTransaction.module.css";
@@ -26,9 +25,9 @@ export default function NewTransaction({
   currentFile,
   selectedFile,
   onClearFile,
+  transactionTypeOptions = [], 
 }: NewTransactionPropsExtended) {
-  // eslint-disable-next-line
-  const transactionTypes = useSelector((state: any) => state.transactionTypes.types)
+ 
 
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const apenasNumeros = e.target.value.replace(/[^0-9.,]/g, "");
@@ -59,7 +58,7 @@ export default function NewTransaction({
        {/* // <option value="transferencia">Transferência</option> */}
        <option value="">Selecione o tipo de transação</option>
         {/* {transactionTypes.map(t => ( <option value={t} key={t}>{t}</option> */}
-        {transactionTypes?.map((t: string) => (
+        {transactionTypeOptions?.map((t: string) => (
             <option key={t} value={t}>{t}</option>
           ))}
           

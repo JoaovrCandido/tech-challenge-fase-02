@@ -24,6 +24,7 @@ export interface NewTransactionProps {
   type: TransactionType;
   value: string;
   description?: string;
+  transactionTypeOptions: string[]; 
   onTypeChange: (value: TransactionType) => void;
   onValueChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;

@@ -28,6 +28,7 @@ const convertFileToBase64 = (file: File): Promise<string> => {
 export type TransactionAppProps = {
   transactions: Transaction[];
   dateString: string;
+  transactionTypeOptions: string[];
   onCreate(transaction: Omit<Transaction, "id">): void;
   onUpdate(transaction: Transaction): void;
   onDelete(id: number): void;
@@ -36,16 +37,12 @@ export type TransactionAppProps = {
 function TransactionApp({
   transactions,
   dateString,
+  transactionTypeOptions,
   onCreate,
   onUpdate,
   onDelete,
-}: {
-  transactions: Transaction[];
-  dateString: string;
-  onCreate: (t: Omit<Transaction, "id">) => void;
-  onUpdate: (t: Transaction) => void;
-  onDelete: (id: number) => void;
-}) {
+}: TransactionAppProps) {
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -230,6 +227,7 @@ function TransactionApp({
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <NewTransaction
           title="Editar Transação"
+          transactionTypeOptions={transactionTypeOptions} 
           type={editType}
           value={editValue}
           description={editDescription}

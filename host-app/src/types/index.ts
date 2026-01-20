@@ -90,6 +90,7 @@ export type HomeAppProps = {
   transactions: Transaction[];
   balance: number;
   dateString: string;
+  transactionTypeOptions: string[];
   onCreate(transaction: Omit<Transaction, "id">): void;
   onUpdate(transaction: Transaction): void;
   onDelete(id: number): void;

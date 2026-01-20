@@ -6,6 +6,11 @@ import { GetStaticProps } from "next";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useTransactions } from "@/hooks/useTransactions";
 
+import { useDispatch } from "react-redux";
+
+import { addTransaction, updateTransaction, 
+  deleteTransaction  } from "@/transactionTypes/transactionSlice";
+
 import { displayDate } from "@/utils/formatDate";
 
 import { TransactionAppProps } from "@/types";
@@ -24,7 +29,9 @@ const TransactionApp = dynamic<TransactionAppProps>(
 );
 
 export default function Transacoes() {
-  const { transactions, setTransactions } = useTransactions();
+  const dispatch = useDispatch();
+
+  const { transactions } = useTransactions();
   const isMobile = useIsMobile();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -54,20 +61,18 @@ export default function Transacoes() {
             <TransactionApp
               transactions={transactions}
               dateString={displayDate}
-              onCreate={(data) =>
-                setTransactions((prev) => [
-                  ...prev,
-                  { id: Date.now(), ...data },
-                ])
-              }
-              onUpdate={(updated) =>
-                setTransactions((prev) =>
-                  prev.map((t) => (t.id === updated.id ? updated : t))
-                )
-              }
-              onDelete={(id) =>
-                setTransactions((prev) => prev.filter((t) => t.id !== id))
-              }
+              onCreate={(data) => {
+                // Cria o objeto com ID e manda pro Redux
+                dispatch(addTransaction({ id: Date.now(), ...data }));
+              }}
+              onUpdate={(updated) => {
+                // Manda a atualização pro Redux
+                dispatch(updateTransaction(updated));
+              }}
+              onDelete={(id) => {
+                // Manda deletar no Redux
+                dispatch(deleteTransaction(id));
+              }}
             />
           </div>
         </section>
