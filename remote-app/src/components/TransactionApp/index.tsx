@@ -10,9 +10,20 @@ import TransactionsList from "./components/TransactionsList/TransactionsList";
 
 import { sortTransactionsByDate } from "@/utils/transactions";
 
-import style from './TransactionApp.module.css'
+import style from "./TransactionApp.module.css";
 
 type FilterType = "todos" | TransactionType;
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 export type TransactionAppProps = {
   transactions: Transaction[];
@@ -43,6 +54,10 @@ function TransactionApp({
   const [editType, setEditType] = useState<TransactionType>("deposito");
   const [editValue, setEditValue] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const [existingAttachment, setExistingAttachment] = useState<string | null>(
+    null,
+  );
   const [isModalSucessOpen, setIsModalSucessOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalTitle, setModalTitle] = useState("Sucesso!");
@@ -65,6 +80,7 @@ function TransactionApp({
     setSelectedTransaction(null);
     setEditValue("");
     setEditDescription("");
+    setEditFile(null);
   };
 
   const handleDeleteClick = (transaction: Transaction) => {
@@ -72,36 +88,69 @@ function TransactionApp({
     setIsDeleteModalOpen(true);
   };
 
+  const handleEditFileSelect = (selectedFile: File | null) => {
+    if (selectedFile && selectedFile.size > MAX_FILE_SIZE) {
+      setModalTitle("Erro no Arquivo");
+      setModalMessage("O arquivo é muito grande! O limite é de 2MB.");
+      setIsModalSucessOpen(true);
+      setEditFile(null);
+      return;
+    }
+    setEditFile(selectedFile);
+  };
+
+  const handleClearEditFile = () => {
+    if (editFile) {
+      setEditFile(null);
+    } else {
+      setExistingAttachment(null);
+    }
+  };
+
   const handleEditClick = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     setEditType(transaction.type);
     setEditValue(String(transaction.value));
     setEditDescription(transaction.description || "");
-
+    setEditFile(null);
+    setExistingAttachment(transaction.attachment || null);
     setIsModalOpen(true);
   };
 
-  const handleEditSubmit = () => {
+  const handleEditSubmit = async () => {
     if (!selectedTransaction) return;
 
     setIsSubmitting(true);
     try {
       const numericValue = Number(editValue.replace(",", "."));
 
+      let finalAttachment = selectedTransaction.attachment;
+
+      if (editFile) {
+        finalAttachment = await convertFileToBase64(editFile);
+      } else if (existingAttachment) {
+        finalAttachment = existingAttachment;
+      } else {
+        finalAttachment = "";
+      }
+
       const updatedTransaction: Transaction = {
         ...selectedTransaction, // mantém id e date
         type: editType,
         value: numericValue,
         description: editDescription,
+        attachment: finalAttachment,
       };
 
-      // 🔥 dispara para o HOST
       onUpdate(updatedTransaction);
 
       handleCloseModal();
-      handleEdited(); // feedback visual
+      handleEdited();
     } catch (err) {
       console.error("Erro ao editar transação:", err);
+      setModalTitle("Erro");
+      setModalMessage("Erro ao processar a edição.");
+      setIsModalSucessOpen(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -121,11 +170,10 @@ function TransactionApp({
     setIsSubmitting(true);
 
     try {
-      // 🔥 dispara para o HOST
       onDelete(selectedTransaction.id);
 
       handleCloseDeleteModal();
-      handleDeleted(); // feedback visual (toast / modal)
+      handleDeleted();
     } catch (err) {
       console.error("Erro ao deletar transação:", err);
     } finally {
@@ -188,6 +236,10 @@ function TransactionApp({
           onTypeChange={setEditType}
           onValueChange={setEditValue}
           onDescriptionChange={setEditDescription}
+          onFileChange={handleEditFileSelect}
+          currentFile={existingAttachment}
+          selectedFile={editFile}
+          onClearFile={handleClearEditFile}
           onSubmit={handleEditSubmit}
           disabled={isSubmitting}
         />

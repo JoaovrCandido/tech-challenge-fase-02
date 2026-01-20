@@ -6,6 +6,7 @@ export interface Transaction {
   value: number;
   date: string; // Formato "AAAA-MM-DD"
   description: string;
+  attachment?: string;
 }
 
 export interface TransactionInput {
@@ -28,6 +29,8 @@ export interface NewTransactionProps {
   onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
   disabled?: boolean;
+  onFileChange?: (file: File | null) => void;
+  currentFile?: string | null;
 }
 
 export interface DeleteTransactioProps {
@@ -65,14 +68,14 @@ export interface AccessibilityContextType {
 
 export interface TransactionsListProps {
   transactions: Transaction[];
-  title: string
+  title: string;
   onEditClick: (transaction: Transaction) => void;
   onDeleteClick: (transation: Transaction) => void;
 }
 
 export interface TransactionsListHomeProps {
   transaction: Transaction[];
-  title: string
+  title: string;
 }
 
 export interface ModalProps {
