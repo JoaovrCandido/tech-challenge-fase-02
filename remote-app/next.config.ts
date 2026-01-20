@@ -15,10 +15,6 @@ const nextConfig: NextConfig = {
         new NextFederationPlugin({
           name: 'remoteApp',
           filename: 'static/chunks/remoteEntry.js',
-          // remotes: {
-          //   // funcionalidadesRemote: `funcionalidadesRemote@${process.env.NEXT_PUBLIC_REMOTE_URL || 'http://localhost:3001'}/_next/static/chunks/remoteEntry.js`,
-          //   hostApp: 'hostApp@http://localhost:3000/_next/static/chunks/remoteEntry.js'
-          // },
           exposes: {
             './Button': './src/components/Button.tsx',
             './HeaderContainer': './src/components/HeaderContainer/HeaderContainer.tsx',
@@ -29,12 +25,10 @@ const nextConfig: NextConfig = {
           shared: {
             react: {
               singleton: true,
-              // eager: true,
               requiredVersion: false
             },
             'react-dom': {
               singleton: true,
-              // eager: true,
               requiredVersion: false
             },
             "react-redux": { singleton: true },
@@ -44,13 +38,6 @@ const nextConfig: NextConfig = {
         })
       );
     }
-    // else {
-    //   config.resolve.alias = {
-    //     ...config.resolve.alias,
-    //     'hostApp/accessibility': false,
-    //     'hostApp/AccessibilityProvider': false,
-    //   };
-    // }
     return config
   },
 };

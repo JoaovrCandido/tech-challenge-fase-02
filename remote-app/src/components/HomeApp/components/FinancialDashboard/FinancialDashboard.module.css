@@ -31,20 +31,20 @@
 .card {
   background: #fff;
   border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .cardLabel {
-  font-size: 0.9rem;
+  font-size: var(--font-size-md);
   color: #666;
   margin-bottom: 5px;
   display: block;
 }
 
 .cardValue {
-  font-size: 1.8rem;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0;
 }
@@ -75,14 +75,14 @@
 .chartCard {
   background: #fff;
   border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 20px;
   display: flex;
   flex-direction: column;
 }
 
 .chartTitle {
-  font-size: 1.1rem;
+  font-size: var(--font-size-md);
   font-weight: 600;
   margin-bottom: 20px;
   color: #444;
@@ -132,7 +132,7 @@
 }
 
 .barDate {
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   color: #888;
   margin-top: 8px;
   text-align: center;
@@ -187,11 +187,11 @@
 }
 
 .donutLabel {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   color: #888;
 }
 .donutValue {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);;
   font-weight: bold;
   color: #333;
 }
@@ -205,7 +205,7 @@
 .legendItem {
   display: flex;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: var(--font-size-sm);
   color: #555;
 }
 

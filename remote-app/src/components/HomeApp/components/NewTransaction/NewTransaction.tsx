@@ -23,10 +23,8 @@ export default function NewTransaction({
   currentFile,
   selectedFile,
   onClearFile,
-  transactionTypeOptions = [], 
+  transactionTypeOptions = [],
 }: NewTransactionPropsExtended) {
- 
-
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const apenasNumeros = e.target.value.replace(/[^0-9.,]/g, "");
     onValueChange(apenasNumeros);
@@ -51,12 +49,12 @@ export default function NewTransaction({
         onChange={(e) => onTypeChange(e.target.value as TransactionType)}
         disabled={disabled}
       >
-    
-       <option value="">Selecione o tipo de transação</option>
+        <option value="">Selecione o tipo de transação</option>
         {transactionTypeOptions?.map((t: string) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-          
+          <option key={t} value={t}>
+            {t}
+          </option>
+        ))}
       </select>
 
       <p>Valor</p>
@@ -78,49 +76,25 @@ export default function NewTransaction({
         disabled={disabled}
       />
 
-      <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-        <p style={{ marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-          Comprovante
-        </p>
+      <div className={style.receiptContainer}>
+        <p className={style.receiptLabel}>Comprovante</p>
 
         {hasFile ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.8rem",
-              backgroundColor: "#f0f0f0",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          >
-            <div
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                maxWidth: "80%",
-              }}
-            >
-              <span style={{ fontSize: "1.2rem", marginRight: "0.5rem" }}>
-                📄
-              </span>
+          <div className={style.fileBox}>
+            <div className={style.fileInfo}>
+              <span className={style.fileIcon}>📄</span>
+
               {selectedFile ? (
-                <span style={{ fontSize: "0.9rem" }}>
+                <span className={style.fileName}>
                   {selectedFile.name} (Novo)
                 </span>
               ) : (
                 <a
                   href={currentFile || "#"}
                   download="comprovante"
-                  style={{
-                    fontSize: "0.9rem",
-                    color: "#0070f3",
-                    textDecoration: "underline",
-                  }}
+                  className={style.fileLink}
                 >
-                  Ver Comprovante Salvo
+                 Ver Comprovante Salvo
                 </a>
               )}
             </div>
@@ -130,14 +104,7 @@ export default function NewTransaction({
               onClick={onClearFile}
               disabled={disabled}
               title="Remover arquivo"
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "#d93025",
-                fontWeight: "bold",
-                cursor: "pointer",
-                fontSize: "1rem",
-              }}
+              className={style.removeButton}
             >
               ✕
             </button>
@@ -149,6 +116,7 @@ export default function NewTransaction({
             onChange={handleFileChange}
             disabled={disabled}
             accept="image/*,.pdf"
+            className={style.input}
           />
         )}
       </div>

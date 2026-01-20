@@ -22,19 +22,13 @@ const nextConfig: NextConfig = {
           remotes: {
             remoteApp: `remoteApp@${process.env.NEXT_PUBLIC_REMOTE_APP_URL}/_next/static/chunks/remoteEntry.js`
           },
-          // exposes: {
-          //   "./accessibility": "./src/contexts/accessibility.ts",
-          //   "./AccessibilityProvider": "./src/contexts/AccessibilityProvider.tsx",
-          // },
           shared: {
             react: {
               singleton: true,
-              // eager: true,
               requiredVersion: false
             },
             'react-dom': {
               singleton: true,
-              // eager: true,
               requiredVersion: false
             },
             "react-redux": { singleton: true },

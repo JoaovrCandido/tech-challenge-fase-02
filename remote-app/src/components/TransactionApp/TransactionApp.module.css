@@ -1,7 +1,8 @@
 .filterSection {
     display: flex;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
 }
 
 .filterTexto {
@@ -24,4 +25,10 @@
     font-size: var(--font-size-md);
     border-radius: var(--radius-sm);
     cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .filterTexto {
+        margin-bottom: var(--spacing-sm);
+    }
 }
